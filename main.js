@@ -139,10 +139,14 @@ var GUI = {
 };
 onload = () => {
 	window.music = new Audio("music.mp3");
-	onclick = () => {
+	function playMusic() {
 		music.play();
-		onclick = null;
+		music.onended = () => {
+			music.play();
+		}
+		removeEventListener("click", playMusic);
 	}
+	addEventListener("click", playMusic);
 	window.gameSettings = JSON.parse(localStorage.getItem("game-settings")) ?? {volume: 75, highRenderQuality: false};
 	music.volume = gameSettings.volume / 100;
 	window.closeButton = document.createElement("div");
