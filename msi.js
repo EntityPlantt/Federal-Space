@@ -6,7 +6,7 @@ var creator = new MSICreator({
 	description: "Take over space!",
 	exe: "Federal Space",
 	name: "Federal Space",
-	manufacturer: "EntityPlantt & FilipK",
+	manufacturer: "EntityPlantt &amp; FilipK",
 	version: "1.0.0",
 	appIconPath: "images/icon.ico",
 	ui: {
