@@ -1,22 +1,28 @@
 {
   "name": "Federal Space",
-  "version": "1.0.0",
-  "description": "Take over the space!",
+  "version": "2022.11.21",
+  "description": "Take over space!",
   "main": "app.js",
   "scripts": {
     "test": "npx electron .",
-    "build": "npx electron-packager . \"Federal Space\" --icon=images/icon.ico"
+    "build": "npx electron-packager . \"Federal Space\" --icon=images/icon.ico",
+    "msi": "node msi"
   },
   "keywords": [
     "game",
     "html5",
     "electron",
-    "space"
+    "space",
+    "js",
+    "javascript",
+    "nodejs",
+    "node"
   ],
-  "author": "Fnikipp",
+  "author": "EntityPlantt & FilipK",
   "devDependencies": {
     "electron": "^18.1.0",
     "electron-packager": "^15.5.1",
     "electron-wix-msi": "^4.0.0"
-  }
+  },
+  "license": "SEE LICENSE IN LICENSE.txt"
 }

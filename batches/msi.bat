@@ -1,3 +1,3 @@
 cd ..
-node msi
+npm run msi
 pause
