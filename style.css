@@ -1,0 +1,209 @@
+@font-face {
+	font-family: font;
+	src: url("font.ttf") format("truetype");
+}
+:root {
+	--cursor-pointer: url("images/cursors/pointer.png") 32 32, auto;
+	--cursor-default: url("images/cursors/default.png") 32 32, auto;
+	--cursor-text: url("images/cursors/text.png") 32 32, auto;
+}
+body {
+	font-family: font;
+	margin: 0;
+	background: black;
+	color: white;
+	overflow: hidden;
+	cursor: var(--cursor-default);
+}
+::-webkit-scrollbar {
+	width: 5px;
+}
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+::-webkit-scrollbar-thumb {
+	background: #222;
+	border-radius: 2.5px;
+}
+#loading-screen {
+	top: 50%;
+	left: 50%;
+	position: absolute;
+	z-index: -1;
+	transform: translateX(-50%) translateY(-50%);
+	text-align: center;
+	font-size: 25px;
+	user-select: none;
+}
+#loading-screen h1 {
+	font-size: 75px;
+}
+#threejs-canvas {
+	transition: opacity 1s;
+	z-index: 0;
+}
+#loading-bar {
+	background: #111;
+	width: 400px;
+	height: 50px;
+	display: inline-block;
+}
+#loading-bar-inside {
+	height: 50px;
+	background: navy;
+	animation: loadingBarInside 3s infinite linear;
+	position: relative;
+}
+#balance:before {
+	content: "$";
+	color: #eee;
+}
+@keyframes loadingBarInside {
+	from {
+		left: 0;
+		width: 0;
+	}
+	50% {
+		left: 200px;
+		width: 50px;
+	}
+	to {
+		left: 400px;
+		width: 0;
+	}
+}
+.gui {
+	background: navy;
+	padding: 8px;
+	border: solid 5px white;
+	border-radius: 20px;
+	z-index: 0;
+	transition: opacity 1s;
+	margin-top: 10px;
+}
+[gui-name] {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translateX(-50%) translateY(-50%);
+	max-height: 90vh;
+	max-width: 90vh;
+	overflow: auto;
+}
+.gui-window-close-btn {
+	float: right;
+	transition: background 1s;
+	margin-left: 5em;
+	padding: 5px 10px 5px 10px;
+	cursor: var(--cursor-pointer);
+}
+.gui-window-close-btn:hover {
+	background: red;
+}
+.gui-independent {
+	position: absolute;
+}
+.gui-top {
+	top: -10px;
+	bottom: auto;
+}
+.gui-left {
+	left: 0;
+	right: auto;
+}
+.gui-right {
+	right: 0;
+	left: auto;
+}
+.gui-bottom {
+	bottom: 0;
+	top: auto;
+}
+.gui-center-horizontal {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+}
+.gui-center-vertical {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+}
+.gui-main {
+	z-index: 1;
+}
+.gui-dialog {
+	z-index: 2;
+}
+.gui-center-text {
+	text-align: center;
+}
+.gui-center-right {
+	text-align: right;
+}
+.gui-treat-text {
+	display: inline-block;
+}
+.gui-float-right {
+	float: right;
+}
+.gui-float-left {
+	float: left;
+}
+.gui-button {
+	cursor: var(--cursor-pointer);
+	transition: background 1s, border 1s;
+}
+.gui-button:hover {
+	border-color: transparent;
+}
+.gui:not(.gui-selectable) {
+	user-select: none;
+}
+.gui-selectable, input {
+	cursor: var(--cursor-text) !important;
+}
+.gui-selectable::selection {
+	background: #222;
+}
+.gui-button.gui-disabled {
+	background: #333;
+}
+.gui-button.gui-disabled:hover {
+	background: #313131;
+	border-color: lightgray;
+}
+[gui-name].gui-opened {
+	display: unset;
+	animation: openGUI 1s 1 cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes openGUI {
+	from {
+		top: 100vh;
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+input, select {
+	color: inherit;
+	background: transparent;
+	border: none;
+	font: inherit;
+}
+.gui-badge {
+	display: inline-block;
+	padding: 5px;
+	background: var(--c);
+	border-radius: 5px;
+}
+.gui-hidden, [gui-name] {
+	display: none;
+}
+a {
+	cursor: var(--cursor-pointer);
+}
+.gui-hidden-force {
+	display: none !important;
+}

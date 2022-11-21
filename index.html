@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Federal Space</title>
+	<script type="text/javascript" src="three.js"></script>
+	<script type="text/javascript" src="main.js"></script>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body oncontextmenu="return false">
+	<div id="loading-screen">
+		<h1>Federal Space</h1>
+		<p>Loading...</p>
+		<br>
+		<div id="loading-bar">
+			<div id="loading-bar-inside"></div>
+		</div>
+	</div>
+	<div id="prev-world" class="gui gui-independent gui-button gui-right gui-top gui-disabled" style="margin-right: 115px;" onclick="changeWorldTo(worldNow - 1)"><</div>
+	<div id="world-now" class="gui gui-independent gui-right gui-top gui-text-center gui-button" style="margin-right: 35px; width: 50px;" onclick="openGUI('change-world')">0</div>
+	<div id="next-world" class="gui gui-independent gui-button gui-right gui-top" onclick="changeWorldTo(worldNow + 1)">></div>
+	<div id="backpack-btn" class="gui gui-button gui-independent gui-right gui-bottom" onclick="openGUI('backpack')"><img src="images/gui/backpack.png" width="32"></div>
+	<div class="gui" gui-name="change-world" gui-title="Change world">
+		Change world to:
+		<br>
+		<input type="number" min="0" value="0" onkeypress="if (['Enter', '\n'].includes(event.key)) {changeWorldTo(parseInt(this.value)); closeGUI('change-world')}">
+	</div>
+	<div class="gui gui-button gui-independent gui-left gui-bottom" onclick="openGUI('options')"><img src="images/gui/options.png" width="32"></div>
+	<div class="gui" gui-name="options" gui-title="Options">
+		<div class="gui">Volume: <input type="number" min="0" max="100" class="volume-setting" onchange="GUI['options'].changeVolume(parseInt(this.value))"></div>
+		<div class="gui gui-button" onclick="removeGameData()">Reset all game data</div>
+		<div class="gui gui-button" onclick="toggleHighRenderQuality()">Toggle high render quality</div>
+	</div>
+	<div class="gui" gui-name="backpack" gui-title="Backpack">
+		<ul></ul>
+		<div class="gui gui-button" onclick="sellBackpack()">Sell</div>
+		<p>Your backpack can store up to <span class="bp-max-size"></span> items.</p>
+		<div class="gui gui-button" onclick="upgradeBackpack()">Upgrade ($<span class="bp-up-cost"></span>)</div>
+	</div>
+	<div class="gui" gui-name="planet" gui-title="Unnamed">
+		<p class="planet-status"></p>
+		<div class="options"></div>
+	</div>
+	<div id="balance" class="gui gui-top gui-left gui-independent">0</div>
+	<div class="gui" gui-name="alert" gui-title="New message">
+		<div class="message"></div>
+	</div>
+	<div class="gui" gui-name="confirm" gui-title="Confirmation">
+		<div class="message"></div>
+		<div class="gui gui-button confirm">OK</div>
+	</div>
+	<div class="gui gui-independent gui-button gui-top gui-left" style="margin-top: 50px;" id="cancel-rocket-btn" onclick="cancelColonizingRocket()">Cancel rocket</div>
+	<div class="gui gui-button gui-independent gui-right gui-top" style="margin-top: 50px;" onclick="openGUI('planet-list')">Planet list</div>
+	<div class="gui" gui-name="planet-list" gui-title="Planet list">
+		<ul class="planet-list"></ul>
+	</div>
+</body>
+</html>

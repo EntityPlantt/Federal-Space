@@ -1,0 +1,22 @@
+{
+  "name": "Federal Space",
+  "version": "1.0.0",
+  "description": "Take over the space!",
+  "main": "app.js",
+  "scripts": {
+    "test": "npx electron .",
+    "build": "npx electron-packager . \"Federal Space\" --icon=images/icon.ico"
+  },
+  "keywords": [
+    "game",
+    "html5",
+    "electron",
+    "space"
+  ],
+  "author": "Fnikipp",
+  "devDependencies": {
+    "electron": "^18.1.0",
+    "electron-packager": "^15.5.1",
+    "electron-wix-msi": "^4.0.0"
+  }
+}
