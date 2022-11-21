@@ -1,6 +1,8 @@
 # Federal Space
 Take over space!
 
+![Federal Space logo](https://raw.githubusercontent.com/EntityPlantt/Federal-Space/main/images/icon.ico)
+
 ## How to play
 You spawn in a universe full of static planets. Every planet has its own size. There are 50 planets in a universe and you can go between universes with a click.
 
@@ -17,7 +19,7 @@ You can download this game in a variety of ways.
 
 ### Download, install and play
 Want to get the prebuilt version? Go from here!
-1. Go to the [Releases page](https://github.com/EntityPlantt/Federal-Space/Releases).
+1. Go to the [Releases page](https://github.com/EntityPlantt/Federal-Space/releases).
 2. Download the latest release build.
 3. Run the Microsoft installer and complete the wizard.
 4. You should see a shortcut of the game on your desktop. Run the game.
