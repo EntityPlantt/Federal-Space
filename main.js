@@ -19,7 +19,7 @@ var GUI = {
 				li.appendChild(document.createTextNode(data.worlds[path[0]][path[1]].gem.name
 				+ " ($" + data.worlds[path[0]][path[1]].gem.value.toLocaleString("en-US") + ") x"));
 				elm = document.createElement("span");
-				elm.classList.add("gem-amount");
+				elm.className = "gem-amount";
 				li.appendChild(elm);
 				li.setAttribute("gem", gem);
 				GUI["backpack"].list.appendChild(li);
@@ -52,7 +52,7 @@ var GUI = {
 				elm.querySelector(".options").innerHTML = `
 					<div class="gui gui-button" onclick='colonizePlanet(${JSON.stringify(path.join(":"))})'>Colonize
 					$${(data.worlds[path[0]][path[1]].size * 1000000
-					+ data.worlds[path[0]][path[1]].intelligentLife ? 1000000 : 0).toLocaleString("en-US")}</div>
+					+ (data.worlds[path[0]][path[1]].intelligentLife ? 1000000 : 0)).toLocaleString("en-US")}</div>
 				`;
 				break;
 				case "You":
@@ -66,12 +66,12 @@ var GUI = {
 				}
 				else {
 					elm.querySelector(".options").innerHTML = `
-						<div class="gui gui-button gui-disabled">Set up gem production</div>
+						<div class="gui gui-button" disabled>Set up gem production</div>
 					`;
 				}
 				break;
 				default:
-				elm.querySelector(".planet-status").innerText = `This one is a part of the ${planet.ownedBy}'s federation.`;
+				elm.querySelector(".planet-status").innerText = `This planet is a part of the ${planet.ownedBy}'s federation.`;
 				elm.querySelector(".options").innerHTML = `
 					<div class="gui gui-button" onclick='declareWar(${JSON.stringify(path.join(":"))})'>Declare war
 					($${planet.strength.toLocaleString("en-US")})</div>
@@ -121,7 +121,7 @@ var GUI = {
 							${planet.name}
 							</a>
 							<span class="gui-badge ${planet.ownedBy ? "" : "gui-hidden"}"
-							style="--c: ${data.federationColors[planet.ownedBy]}">
+							style="--c: ${data.federations[planet.ownedBy].color}">
 							${planet.ownedBy}
 							</span>
 							<span class="gui-badge ${planet.hasGemProduction ? "" : "gui-hidden"}" style="--c: magenta">
@@ -309,7 +309,7 @@ onload = () => {
 						saveGame();
 					}
 				}
-				if (data.worlds[i][j].ownedBy == null && data.worlds[i][j].intelligentLife && !generateRandomNumber(0, 999)) {
+				if (data.worlds[i][j].ownedBy == null && data.worlds[i][j].intelligentLife && !generateRandomNumber(0, 899)) {
 					data.worlds[i][j].intelligentLife = false;
 					data.worlds[i][j].ownedBy
 					= "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").random()
@@ -317,18 +317,21 @@ onload = () => {
 					+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").random()
 					+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").random()
 					+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").random();
-					data.federationColors[data.worlds[i][j].ownedBy] = `rgb(
+					data.federations[data.worlds[i][j].ownedBy] = {color: `rgb(
 						${generateRandomNumber(0, 255)},
 						${generateRandomNumber(0, 255)},
 						${generateRandomNumber(0, 255)}
-					)`;
+					)`};
 					saveGame();
 					planet.strength = generateRandomNumber(5000, 5000000);
 					openGUI("alert",
 					`The life on the planet ${data.worlds[i][j].name} has evolved to ${data.worlds[i][j].ownedBy}!`);
 				}
+				if (![null, "You"].includes(data.worlds[i][j].ownedBy)) {
+					data.worlds[i][j].strength += generateRandomNumber(10, 100);
+				}
 				if (data.alienCooldown < 0
-				&& ![null, "You"].includes(data.worlds[i][j].ownedBy) && !generateRandomNumber(0, 499)) {
+				&& ![null, "You"].includes(data.worlds[i][j].ownedBy) && !generateRandomNumber(0, 449)) {
 					data.alienCooldown = 250;
 					var planet = data.worlds.random().random();
 					if (planet.ownedBy == data.worlds[i][j].ownedBy)
@@ -366,17 +369,27 @@ function loadGame() {
 			balance: 0,
 			basePlanet: "0:0",
 			alienCooldown: 250,
-			federationColors: {
-				"You": "#080"
+			federations: {
+				You: {color: "#080"},
+				null: {color: "black"}
 			}
 		};
-		data.federationColors[null] = "black";
 		for (var i = 0; i < 50; i++) {
 			data.worlds[0].push(generatePlanet());
 		}
 		data.worlds[0][0].ownedBy = "You";
 		data.worlds[0][0].hasGemProduction = true;
 		saveGame();
+	}
+	// Compatibility
+	if (data.federationColors) {
+		data.federations = {};
+		for (var i of Object.keys(data.federationColors)) {
+			data.federations[i] = {color: data.federationColors[i]};
+		}
+		delete data.federationColors;
+		saveGame();
+		openGUI("alert", `Your old save was automatically adjusted to fit the format of the new update.`);
 	}
 	while (scene.children.length) {
 		scene.remove(scene.children[0]);
@@ -486,9 +499,9 @@ function changeWorldTo(worldId) {
 	if (worldId < 0)
 		return;
 	if (worldId == 0)
-		document.getElementById("prev-world").classList.add("gui-disabled");
+		document.getElementById("prev-world").setAttribute("disabled", "");
 	else
-		document.getElementById("prev-world").classList.remove("gui-disabled");
+		document.getElementById("prev-world").removeAttribute("disabled");
 	worldNow = worldId;
 	document.getElementById("world-now").innerText = worldNow;
 	loadGame();

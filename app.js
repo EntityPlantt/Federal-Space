@@ -25,7 +25,7 @@ Electron.app.whenReady().then(() => {
 		*/
 		kiosk: true,
 		webPreferences: {
-			devTools: false,
+			devTools: true,
 			preload: path.join(__dirname, "preload.js"),
 			safeDialogs: true
 		},

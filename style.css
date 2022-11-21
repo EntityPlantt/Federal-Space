@@ -166,10 +166,10 @@ body {
 .gui-selectable::selection {
 	background: #222;
 }
-.gui-button.gui-disabled {
+.gui-button[disabled] {
 	background: #333;
 }
-.gui-button.gui-disabled:hover {
+.gui-button[disabled]:hover {
 	background: #313131;
 	border-color: lightgray;
 }
