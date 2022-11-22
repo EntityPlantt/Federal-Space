@@ -370,7 +370,12 @@ onload = () => {
 				if (GUI[i].shortcut.alt != undefined && GUI[i].shortcut.alt != event.altKey) {
 					continue;
 				}
-				openGUI(i);
+				if (GUI[i]?.opened) {
+					closeGUI(i);
+				}
+				else {
+					openGUI(i);
+				}
 			}
 		}
 	}
@@ -558,12 +563,20 @@ function generatePlanetGemImage(gem) {
 }
 function openGUI(name, ...data) {
 	document.querySelector(`[gui-name="${name}"]`).classList.add("gui-opened");
+	if (!GUI[name]) {
+		GUI[name] = {};
+	}
+	GUI[name].opened = true;
 	document.body.appendChild(document.querySelector(`[gui-name="${name}"]`));
-	return ((GUI[name] || {}).open || new Function)(document.querySelector(`[gui-name="${name}"]`), ...data);
+	return (GUI[name].open || new Function)(document.querySelector(`[gui-name="${name}"]`), ...data);
 }
 function closeGUI(name, ...data) {
+	if (!GUI[name]) {
+		GUI[name] = {};
+	}
+	GUI[name].opened = false;
 	document.querySelector(`[gui-name="${name}"]`).classList.remove("gui-opened");
-	return ((GUI[name] || {}).close || new Function)(document.querySelector(`[gui-name="${name}"]`), ...data);
+	return (GUI[name].close || new Function)(document.querySelector(`[gui-name="${name}"]`), ...data);
 }
 function sellBackpack() {
 	for (var gem of Object.keys(data.backpack.items)) {
