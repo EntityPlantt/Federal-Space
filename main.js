@@ -8,7 +8,7 @@ Math.toRadians = deg => deg / 180 * Math.PI;
 var GUI = {
 	"backpack": {
 		open(elm) {
-			GUI["backpack"].list = elm.querySelector("ul");
+			GUI["backpack"].list = elm.querySelector("#backpack-gem-list");
 			elm.querySelector(".bp-max-size").innerText = data.backpack.maxSize.toLocaleString("en-US");
 			elm.querySelector(".bp-up-cost").innerText = (data.backpack.maxSize * 20000).toLocaleString("en-US");
 			for (var gem of Object.keys(data.backpack.items)) {

@@ -34,10 +34,10 @@
 		<div class="gui gui-button" onclick="window.close()">Exit</div>
 	</div>
 	<div class="gui" gui-name="backpack" gui-title="Backpack">
-		<ul></ul>
-		<div class="gui gui-button" onclick="sellBackpack()">Sell</div>
+		<div class="gui gui-button" onclick="sellBackpack()">Sell all gems</div>
 		<p>Your backpack can store up to <span class="bp-max-size"></span> items.</p>
 		<div class="gui gui-button" onclick="upgradeBackpack()">Upgrade ($<span class="bp-up-cost"></span>)</div>
+		<ul id="backpack-gem-list"></ul>
 	</div>
 	<div class="gui" gui-name="planet" gui-title="Unnamed">
 		<p class="planet-status"></p>
