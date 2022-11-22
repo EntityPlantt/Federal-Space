@@ -35,7 +35,8 @@ var GUI = {
 			GUI["backpack"].list.innerHTML = "";
 			delete GUI["backpack"].list;
 			delete GUI["backpack"].interval;
-		}
+		},
+		shortcut: {key: "b"}
 	},
 	"planet": {
 		open(elm, planet) {
@@ -102,7 +103,8 @@ var GUI = {
 			music.volume = value / 100;
 			gameSettings.volume = value;
 			saveGameSettings();
-		}
+		},
+		shortcut: {key: "escape"}
 	},
 	"planet-list": {
 		open(elm) {
@@ -134,7 +136,11 @@ var GUI = {
 					`;
 				}
 			}
-		}
+		},
+		shortcut: {key: "p"}
+	},
+	"change-world": {
+		shortcut: {key: "w"}
 	}
 };
 onload = () => {
@@ -344,6 +350,30 @@ onload = () => {
 			}
 		}
 	}, 500);
+	onkeydown = event => {
+		if (event.ctrlKey && event.key.toLowerCase() == "w") {
+			event.preventDefault();
+		}
+	}
+	onkeyup = event => {
+		for (var i of Object.keys(GUI)) {
+			if (!GUI[i].shortcut) {
+				continue;
+			}
+			if (GUI[i].shortcut.key == event.key.toLowerCase()) {
+				if (GUI[i].shortcut.ctrl != undefined && GUI[i].shortcut.ctrl != event.ctrlKey) {
+					continue;
+				}
+				if (GUI[i].shortcut.shift != undefined && GUI[i].shortcut.shift != event.shiftKey) {
+					continue;
+				}
+				if (GUI[i].shortcut.alt != undefined && GUI[i].shortcut.alt != event.altKey) {
+					continue;
+				}
+				openGUI(i);
+			}
+		}
+	}
 }
 function removeGameData() {
 	openGUI("confirm", "All game data will be lost.", () => {
