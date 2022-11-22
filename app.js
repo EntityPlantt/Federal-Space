@@ -1,4 +1,4 @@
-var Electron = require("electron"), path = require("path");
+var Electron = require("electron");
 function createWindow(file, settings) {
 	var win = new Electron.BrowserWindow(settings);
 	win.loadFile(file);
@@ -6,27 +6,9 @@ function createWindow(file, settings) {
 }
 Electron.app.whenReady().then(() => {
 	this.indexWindow = createWindow("index.html", {
-		/*
-		width: 600,
-		height: 300,
-		center: true,
-		resizable: false,
-		movable: false,
-		frame: false,
-		minimizable: false,
-		maximizable: false,
-		fullscreenable: false,
-		closable: false,
-		autoHideMenuBar: true,
-		webPreferences: {
-			devTools: true,
-			preload: path.join(__dirname, "index-preload.js")
-		}
-		*/
 		kiosk: true,
 		webPreferences: {
-			devTools: false,
-			preload: path.join(__dirname, "preload.js"),
+			devTools: true,
 			safeDialogs: true
 		},
 		autoHideMenuBar: true

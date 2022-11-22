@@ -3,12 +3,12 @@ distance = (x1, y1, x2, y2) => Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2
 Array.prototype.random = function() {
 	return this[generateRandomNumber(0, this.length - 1)];
 };
-Math.radToDeg = rad => rad * 180 / Math.PI;
-Math.degToRad = deg => deg / 180 * Math.PI;
+Math.toDegrees = rad => rad * 180 / Math.PI;
+Math.toRadians = deg => deg / 180 * Math.PI;
 var GUI = {
 	"backpack": {
 		open(elm) {
-			GUI["backpack"].list = elm.querySelector("ul");
+			GUI["backpack"].list = elm.querySelector("#backpack-gem-list");
 			elm.querySelector(".bp-max-size").innerText = data.backpack.maxSize.toLocaleString("en-US");
 			elm.querySelector(".bp-up-cost").innerText = (data.backpack.maxSize * 20000).toLocaleString("en-US");
 			for (var gem of Object.keys(data.backpack.items)) {
@@ -19,7 +19,7 @@ var GUI = {
 				li.appendChild(document.createTextNode(data.worlds[path[0]][path[1]].gem.name
 				+ " ($" + data.worlds[path[0]][path[1]].gem.value.toLocaleString("en-US") + ") x"));
 				elm = document.createElement("span");
-				elm.classList.add("gem-amount");
+				elm.className = "gem-amount";
 				li.appendChild(elm);
 				li.setAttribute("gem", gem);
 				GUI["backpack"].list.appendChild(li);
@@ -35,7 +35,8 @@ var GUI = {
 			GUI["backpack"].list.innerHTML = "";
 			delete GUI["backpack"].list;
 			delete GUI["backpack"].interval;
-		}
+		},
+		shortcut: {key: "b"}
 	},
 	"planet": {
 		open(elm, planet) {
@@ -52,7 +53,7 @@ var GUI = {
 				elm.querySelector(".options").innerHTML = `
 					<div class="gui gui-button" onclick='colonizePlanet(${JSON.stringify(path.join(":"))})'>Colonize
 					$${(data.worlds[path[0]][path[1]].size * 1000000
-					+ data.worlds[path[0]][path[1]].intelligentLife ? 1000000 : 0).toLocaleString("en-US")}</div>
+					+ (data.worlds[path[0]][path[1]].intelligentLife ? 1000000 : 0)).toLocaleString("en-US")}</div>
 				`;
 				break;
 				case "You":
@@ -66,12 +67,12 @@ var GUI = {
 				}
 				else {
 					elm.querySelector(".options").innerHTML = `
-						<div class="gui gui-button gui-disabled">Set up gem production</div>
+						<div class="gui gui-button" disabled>Set up gem production</div>
 					`;
 				}
 				break;
 				default:
-				elm.querySelector(".planet-status").innerText = `This one is a part of the ${planet.ownedBy}'s federation.`;
+				elm.querySelector(".planet-status").innerText = `This planet is a part of the ${planet.ownedBy}'s federation.`;
 				elm.querySelector(".options").innerHTML = `
 					<div class="gui gui-button" onclick='declareWar(${JSON.stringify(path.join(":"))})'>Declare war
 					($${planet.strength.toLocaleString("en-US")})</div>
@@ -102,7 +103,8 @@ var GUI = {
 			music.volume = value / 100;
 			gameSettings.volume = value;
 			saveGameSettings();
-		}
+		},
+		shortcut: {key: "escape"}
 	},
 	"planet-list": {
 		open(elm) {
@@ -121,7 +123,7 @@ var GUI = {
 							${planet.name}
 							</a>
 							<span class="gui-badge ${planet.ownedBy ? "" : "gui-hidden"}"
-							style="--c: ${data.federationColors[planet.ownedBy]}">
+							style="--c: ${data.federations[planet.ownedBy].color}">
 							${planet.ownedBy}
 							</span>
 							<span class="gui-badge ${planet.hasGemProduction ? "" : "gui-hidden"}" style="--c: magenta">
@@ -134,15 +136,23 @@ var GUI = {
 					`;
 				}
 			}
-		}
+		},
+		shortcut: {key: "p"}
+	},
+	"change-world": {
+		shortcut: {key: "w"}
 	}
 };
 onload = () => {
 	window.music = new Audio("music.mp3");
-	onclick = () => {
+	function playMusic() {
 		music.play();
-		onclick = null;
+		music.onended = () => {
+			music.play();
+		}
+		removeEventListener("click", playMusic);
 	}
+	addEventListener("click", playMusic);
 	window.gameSettings = JSON.parse(localStorage.getItem("game-settings")) ?? {volume: 75, highRenderQuality: false};
 	music.volume = gameSettings.volume / 100;
 	window.closeButton = document.createElement("div");
@@ -168,7 +178,7 @@ onload = () => {
 	document.body.prepend(renderer.domElement);
 	renderer.domElement.onmousedown = MouseClick;
 	camera.userData.rotationX = 0;
-	camera.userData.rotationY = Math.degToRad(45);
+	camera.userData.rotationY = Math.toRadians(45);
 	camera.userData.x = 0;
 	camera.userData.z = 0;
 	window.data = JSON.parse(localStorage.getItem("game-data"));
@@ -206,15 +216,15 @@ onload = () => {
 					0,
 					data.worlds[targetPlanet[0]][targetPlanet[1]].z
 				);
-				colonizingRocket.rotation.x = Math.degToRad(90);
+				colonizingRocket.rotation.x = Math.toRadians(90);
 				colonizingRocket.position.set(data.colonizingRocket.x, 0, data.colonizingRocket.z);
 				var calculatedValue = Math.atan(
 					(data.colonizingRocket.x - data.worlds[targetPlanet[0]][targetPlanet[1]].x)
 					/
 					(data.colonizingRocket.z - data.worlds[targetPlanet[0]][targetPlanet[1]].z)
 				);
-				data.colonizingRocket.x -= Math.cos(Math.radToDeg(-calculatedValue) + 90) * 0.05;
-				data.colonizingRocket.z -= Math.sin(Math.radToDeg(-calculatedValue) + 90) * 0.05;
+				data.colonizingRocket.x -= Math.cos(Math.toDegrees(-calculatedValue) + 90) * 0.05;
+				data.colonizingRocket.z -= Math.sin(Math.toDegrees(-calculatedValue) + 90) * 0.05;
 				if (distance(
 					data.worlds[targetPlanet[0]][targetPlanet[1]].x,
 					data.worlds[targetPlanet[0]][targetPlanet[1]].z,
@@ -258,7 +268,7 @@ onload = () => {
 			onmousemove = event => {
 				camera.userData.rotationX += (x - event.clientX) / 180;
 				camera.userData.rotationY += (y - event.clientY) / 180;
-				camera.userData.rotationY = Math.max(Math.degToRad(1), Math.min(Math.degToRad(90), camera.userData.rotationY));
+				camera.userData.rotationY = Math.max(Math.toRadians(1), Math.min(Math.toRadians(90), camera.userData.rotationY));
 				x = event.clientX;
 				y = event.clientY;
 			}
@@ -305,7 +315,7 @@ onload = () => {
 						saveGame();
 					}
 				}
-				if (data.worlds[i][j].ownedBy == null && data.worlds[i][j].intelligentLife && !generateRandomNumber(0, 999)) {
+				if (data.worlds[i][j].ownedBy == null && data.worlds[i][j].intelligentLife && !generateRandomNumber(0, 899)) {
 					data.worlds[i][j].intelligentLife = false;
 					data.worlds[i][j].ownedBy
 					= "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").random()
@@ -313,18 +323,21 @@ onload = () => {
 					+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").random()
 					+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").random()
 					+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").random();
-					data.federationColors[data.worlds[i][j].ownedBy] = `rgb(
+					data.federations[data.worlds[i][j].ownedBy] = {color: `rgb(
 						${generateRandomNumber(0, 255)},
 						${generateRandomNumber(0, 255)},
 						${generateRandomNumber(0, 255)}
-					)`;
+					)`};
 					saveGame();
 					planet.strength = generateRandomNumber(5000, 5000000);
 					openGUI("alert",
 					`The life on the planet ${data.worlds[i][j].name} has evolved to ${data.worlds[i][j].ownedBy}!`);
 				}
+				if (![null, "You"].includes(data.worlds[i][j].ownedBy)) {
+					data.worlds[i][j].strength += generateRandomNumber(10, 100);
+				}
 				if (data.alienCooldown < 0
-				&& ![null, "You"].includes(data.worlds[i][j].ownedBy) && !generateRandomNumber(0, 499)) {
+				&& ![null, "You"].includes(data.worlds[i][j].ownedBy) && !generateRandomNumber(0, 449)) {
 					data.alienCooldown = 250;
 					var planet = data.worlds.random().random();
 					if (planet.ownedBy == data.worlds[i][j].ownedBy)
@@ -337,6 +350,30 @@ onload = () => {
 			}
 		}
 	}, 500);
+	onkeydown = event => {
+		if (event.ctrlKey && event.key.toLowerCase() == "w") {
+			event.preventDefault();
+		}
+	}
+	onkeyup = event => {
+		for (var i of Object.keys(GUI)) {
+			if (!GUI[i].shortcut) {
+				continue;
+			}
+			if (GUI[i].shortcut.key == event.key.toLowerCase()) {
+				if (GUI[i].shortcut.ctrl != undefined && GUI[i].shortcut.ctrl != event.ctrlKey) {
+					continue;
+				}
+				if (GUI[i].shortcut.shift != undefined && GUI[i].shortcut.shift != event.shiftKey) {
+					continue;
+				}
+				if (GUI[i].shortcut.alt != undefined && GUI[i].shortcut.alt != event.altKey) {
+					continue;
+				}
+				openGUI(i);
+			}
+		}
+	}
 }
 function removeGameData() {
 	openGUI("confirm", "All game data will be lost.", () => {
@@ -362,17 +399,27 @@ function loadGame() {
 			balance: 0,
 			basePlanet: "0:0",
 			alienCooldown: 250,
-			federationColors: {
-				"You": "#080"
+			federations: {
+				You: {color: "#080"},
+				null: {color: "black"}
 			}
 		};
-		data.federationColors[null] = "black";
 		for (var i = 0; i < 50; i++) {
 			data.worlds[0].push(generatePlanet());
 		}
 		data.worlds[0][0].ownedBy = "You";
 		data.worlds[0][0].hasGemProduction = true;
 		saveGame();
+	}
+	// Compatibility
+	if (data.federationColors) {
+		data.federations = {};
+		for (var i of Object.keys(data.federationColors)) {
+			data.federations[i] = {color: data.federationColors[i]};
+		}
+		delete data.federationColors;
+		saveGame();
+		openGUI("alert", `Your old save was automatically adjusted to fit the format of the new update.`);
 	}
 	while (scene.children.length) {
 		scene.remove(scene.children[0]);
@@ -482,9 +529,9 @@ function changeWorldTo(worldId) {
 	if (worldId < 0)
 		return;
 	if (worldId == 0)
-		document.getElementById("prev-world").classList.add("gui-disabled");
+		document.getElementById("prev-world").setAttribute("disabled", "");
 	else
-		document.getElementById("prev-world").classList.remove("gui-disabled");
+		document.getElementById("prev-world").removeAttribute("disabled");
 	worldNow = worldId;
 	document.getElementById("world-now").innerText = worldNow;
 	loadGame();
