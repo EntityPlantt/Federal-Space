@@ -140,6 +140,9 @@ var GUI = {
 		shortcut: {key: "p"}
 	},
 	"change-world": {
+		open(elm) {
+			elm.querySelector("#change-world-number").value = worldNow;
+		},
 		shortcut: {key: "w"}
 	}
 };

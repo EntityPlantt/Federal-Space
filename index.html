@@ -24,7 +24,7 @@
 	<div class="gui" gui-name="change-world" gui-title="Change world">
 		Change world to:
 		<br>
-		<input type="number" min="0" value="0" onkeypress="if (['Enter', '\n'].includes(event.key)) {changeWorldTo(parseInt(this.value)); closeGUI('change-world')}">
+		<input id="change-world-number" type="number" min="0" value="0" onkeypress="if (['Enter', '\n'].includes(event.key)) {changeWorldTo(parseInt(this.value)); closeGUI('change-world')}">
 	</div>
 	<div class="gui gui-button gui-independent gui-left gui-bottom" onclick="openGUI('options')"><img src="images/gui/options.png" width="32"></div>
 	<div class="gui" gui-name="options" gui-title="Options">
