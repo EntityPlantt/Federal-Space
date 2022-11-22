@@ -3,8 +3,8 @@ distance = (x1, y1, x2, y2) => Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2
 Array.prototype.random = function() {
 	return this[generateRandomNumber(0, this.length - 1)];
 };
-Math.radToDeg = rad => rad * 180 / Math.PI;
-Math.degToRad = deg => deg / 180 * Math.PI;
+Math.toDegrees = rad => rad * 180 / Math.PI;
+Math.toRadians = deg => deg / 180 * Math.PI;
 var GUI = {
 	"backpack": {
 		open(elm) {
@@ -172,7 +172,7 @@ onload = () => {
 	document.body.prepend(renderer.domElement);
 	renderer.domElement.onmousedown = MouseClick;
 	camera.userData.rotationX = 0;
-	camera.userData.rotationY = Math.degToRad(45);
+	camera.userData.rotationY = Math.toRadians(45);
 	camera.userData.x = 0;
 	camera.userData.z = 0;
 	window.data = JSON.parse(localStorage.getItem("game-data"));
@@ -210,15 +210,15 @@ onload = () => {
 					0,
 					data.worlds[targetPlanet[0]][targetPlanet[1]].z
 				);
-				colonizingRocket.rotation.x = Math.degToRad(90);
+				colonizingRocket.rotation.x = Math.toRadians(90);
 				colonizingRocket.position.set(data.colonizingRocket.x, 0, data.colonizingRocket.z);
 				var calculatedValue = Math.atan(
 					(data.colonizingRocket.x - data.worlds[targetPlanet[0]][targetPlanet[1]].x)
 					/
 					(data.colonizingRocket.z - data.worlds[targetPlanet[0]][targetPlanet[1]].z)
 				);
-				data.colonizingRocket.x -= Math.cos(Math.radToDeg(-calculatedValue) + 90) * 0.05;
-				data.colonizingRocket.z -= Math.sin(Math.radToDeg(-calculatedValue) + 90) * 0.05;
+				data.colonizingRocket.x -= Math.cos(Math.toDegrees(-calculatedValue) + 90) * 0.05;
+				data.colonizingRocket.z -= Math.sin(Math.toDegrees(-calculatedValue) + 90) * 0.05;
 				if (distance(
 					data.worlds[targetPlanet[0]][targetPlanet[1]].x,
 					data.worlds[targetPlanet[0]][targetPlanet[1]].z,
@@ -262,7 +262,7 @@ onload = () => {
 			onmousemove = event => {
 				camera.userData.rotationX += (x - event.clientX) / 180;
 				camera.userData.rotationY += (y - event.clientY) / 180;
-				camera.userData.rotationY = Math.max(Math.degToRad(1), Math.min(Math.degToRad(90), camera.userData.rotationY));
+				camera.userData.rotationY = Math.max(Math.toRadians(1), Math.min(Math.toRadians(90), camera.userData.rotationY));
 				x = event.clientX;
 				y = event.clientY;
 			}
