@@ -39,7 +39,7 @@ body {
 	font-size: 75px;
 }
 #threejs-canvas {
-	transition: opacity 1s;
+	transition: opacity .5s;
 	z-index: 0;
 }
 #loading-bar {
@@ -50,7 +50,7 @@ body {
 }
 #loading-bar-inside {
 	height: 50px;
-	background: navy;
+	background: slategray;
 	animation: loadingBarInside 3s infinite linear;
 	position: relative;
 }
@@ -73,12 +73,12 @@ body {
 	}
 }
 .gui {
-	background: navy;
+	background: #121212;
 	padding: 8px;
-	border: solid 5px white;
+	border: solid 5px slategray;
 	border-radius: 20px;
 	z-index: 0;
-	transition: opacity 1s;
+	transition: opacity .5s;
 	margin-top: 10px;
 }
 [gui-name] {
@@ -152,10 +152,10 @@ body {
 }
 .gui-button {
 	cursor: var(--cursor-pointer);
-	transition: background 1s, border 1s;
+	transition: background .5s;
 }
 .gui-button:hover {
-	border-color: transparent;
+	border-color: darkslategray;
 }
 .gui:not(.gui-selectable) {
 	user-select: none;
