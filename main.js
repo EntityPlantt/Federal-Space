@@ -187,11 +187,21 @@ onload = () => {
 	window.data = JSON.parse(localStorage.getItem("game-data"));
 	window.colonizingRocket = new THREE.Group;
 	colonizingRocket.add(new THREE.Mesh(
-		new THREE.CapsuleGeometry(0.2, 0.2),
+		new THREE.CylinderGeometry(0.35, 0.35, 2, 24, 1),
 		new THREE.MeshPhongMaterial({color: 0xdddddd})
 	));
+	colonizingRocket.children.at(-1).rotation.x = Math.toRadians(90);
 	colonizingRocket.add(new THREE.PointLight(0xe38c2d, 0.75));
-	colonizingRocket.children.at(-1).position.y = -0.5;
+	colonizingRocket.children.at(-1).rotation.x = Math.toRadians(90);
+	colonizingRocket.children.at(-1).position.z = -1.5;
+	colonizingRocket.add(new THREE.Mesh(
+		new THREE.ConeGeometry(0.5, 0.75, 24, 1),
+		new THREE.MeshPhongMaterial({color: 0xdd1212})
+	));
+	colonizingRocket.children.at(-1).rotation.x = Math.toRadians(90);
+	colonizingRocket.children.at(-1).position.z = 1.5;
+	colonizingRocket.scale.set(.4, .4, .4);
+	window.stars = [];
 	loadGame();
 	function frame() {
 		if (renderGame >= 0) {
@@ -209,18 +219,19 @@ onload = () => {
 			camera.updateProjectionMatrix();
 			if (data.colonizingRocket) {
 				document.getElementById("cancel-rocket-btn").classList.remove("gui-hidden");
-				if (data.colonizingRocket.world == worldNow)
-					scene.add(colonizingRocket);
-				else
-					scene.remove(colonizingRocket);
 				var targetPlanet = data.colonizingRocket.targetPlanet.split(":");
-				colonizingRocket.lookAt(
-					data.worlds[targetPlanet[0]][targetPlanet[1]].x,
-					0,
-					data.worlds[targetPlanet[0]][targetPlanet[1]].z
-				);
-				colonizingRocket.rotation.x = Math.toRadians(90);
-				colonizingRocket.position.set(data.colonizingRocket.x, 0, data.colonizingRocket.z);
+				if (data.colonizingRocket.world == worldNow) {
+					scene.add(colonizingRocket);
+					colonizingRocket.lookAt(
+						data.worlds[targetPlanet[0]][targetPlanet[1]].x,
+						0,
+						data.worlds[targetPlanet[0]][targetPlanet[1]].z
+					);
+					colonizingRocket.position.set(data.colonizingRocket.x, 0, data.colonizingRocket.z);
+				}
+				else {
+					scene.remove(colonizingRocket);
+				}
 				var calculatedValue = Math.atan(
 					(data.colonizingRocket.x - data.worlds[targetPlanet[0]][targetPlanet[1]].x)
 					/
@@ -233,7 +244,7 @@ onload = () => {
 					data.worlds[targetPlanet[0]][targetPlanet[1]].z,
 					data.colonizingRocket.x,
 					data.colonizingRocket.z
-				) < 0.1) {
+				) < data.worlds[targetPlanet[0]][targetPlanet[1]].size) {
 					delete data.colonizingRocket;
 					colonizePlanetFinish(targetPlanet.join(":"));
 					scene.remove(colonizingRocket);
@@ -242,6 +253,18 @@ onload = () => {
 			}
 			else {
 				document.getElementById("cancel-rocket-btn").classList.add("gui-hidden");
+			}
+			// Moving stars
+			if (gameSettings.highRenderQuality) {
+				for (var star of stars) {
+					star.position.x += generateRandomNumber(5, 12) / 2500 * Math.abs(star.position.y);
+					if (star.position.x > 120) {
+						star.position.x -= 240;
+					}
+					if (star.position.x < -120) {
+						star.position.x += 240;
+					}
+				}
 			}
 		}
 		else {
@@ -445,9 +468,29 @@ function loadGame() {
 		scene.add(new THREE.Mesh(new THREE.SphereGeometry(5), new THREE.MeshBasicMaterial({color: 0xffff80})));
 		if (gameSettings.highRenderQuality) {
 			scene.add(new THREE.PointLight(0xffff80, 1.5));
+			scene.add(new THREE.AmbientLight(0xffffff, 0.05));
 		}
 		for (var j = 0; j < data.worlds[worldNow].length; j++) {
 			scene.add(generatePlanetMesh(worldNow + ":" + j, () => renderGame++));
+		}
+	}
+	// Decoration
+	if (gameSettings.highRenderQuality) {
+		stars = [];
+		for (var i = 0; i < 750; i++) {
+			var star = new THREE.Mesh(
+				new THREE.SphereGeometry(generateRandomNumber(100, 500) / 5000),
+				new THREE.MeshBasicMaterial({color: `rgb(
+					${generateRandomNumber(175, 255)}, 
+					${generateRandomNumber(175, 255)}, 255)`})
+			);
+			star.position.set(
+				generateRandomNumber(-120, 120),
+				generateRandomNumber(-50, 50),
+				generateRandomNumber(-120, 120)
+			);
+			scene.add(star);
+			stars.push(star);
 		}
 	}
 }
