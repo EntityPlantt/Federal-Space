@@ -8,7 +8,7 @@ var creator = new MSICreator({
 	exe: "Federal Space",
 	name: settings.name,
 	manufacturer: "EntityPlantt &amp; FilipK",
-	version: settings.version,
+	version: settings.version.substr(2),
 	appIconPath: "images/icon.ico",
 	ui: {
 		chooseDirectory: true,
