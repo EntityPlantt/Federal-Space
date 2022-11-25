@@ -13,7 +13,8 @@ var creator = new MSICreator({
 	ui: {
 		chooseDirectory: true,
 		images: {
-			background: path.resolve(__dirname, "./images/msi/background.png")
+			background: path.resolve(__dirname, "./images/msi/background.png"),
+			banner: path.resolve(__dirname, "./images/msi/banner.png")
 		}
 	}
 });
