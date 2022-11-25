@@ -1,11 +1,6 @@
 var Electron = require("electron");
-function createWindow(file, settings) {
-	var win = new Electron.BrowserWindow(settings);
-	win.loadFile(file);
-	return win;
-}
-Electron.app.whenReady().then(() => {
-	this.indexWindow = createWindow("index.html", {
+function createWindow() {
+	var win = new Electron.BrowserWindow({
 		kiosk: true,
 		webPreferences: {
 			devTools: true,
@@ -13,6 +8,12 @@ Electron.app.whenReady().then(() => {
 		},
 		autoHideMenuBar: true
 	});
+	win.loadFile("index.html");
+	win.setMenu(null);
+	return win;
+}
+Electron.app.whenReady().then(() => {
+	this.indexWindow = createWindow();
 });
 Electron.app.on("window-all-closed", () => {
 	if (process.platform != "darwin")

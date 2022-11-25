@@ -1,5 +1,5 @@
 # Federal Space
-Take over space!
+A HTML5 Electron game about conquering planets in a universe.
 
 ![Federal Space logo](https://raw.githubusercontent.com/EntityPlantt/Federal-Space/main/images/icon.ico)
 
@@ -12,6 +12,7 @@ Every planet has a chance (2%) to have intelligent life on it. They are harder t
 [![Creative Commons License](https://i.creativecommons.org/l/by-nd/4.0/88x31.png)](http://creativecommons.org/licenses/by-nd/4.0/)
 
 This work is licensed under a [Creative Commons Attribution-NoDerivatives 4.0 International License](http://creativecommons.org/licenses/by-nd/4.0/).
+
 See [LICENSE.txt](https://github.com/EntityPlantt/Federal-Space/blob/main/LICENSE.txt)
 
 ## Installing
@@ -22,7 +23,7 @@ Want to get the prebuilt version? Go from here!
 1. Go to the [Releases page](https://github.com/EntityPlantt/Federal-Space/releases).
 2. Download the latest release build.
 3. Run the Microsoft installer and complete the wizard.
-4. You should see a shortcut of the game on your desktop. Run the game.
+4. Run the game. You can do this by creating a shortcut, or by searching "Federal Space" in App Search.
 5. Enjoy! 😀
 
 ### How to build it yourself
@@ -44,4 +45,4 @@ Want to build it on your own, *because you don't trust me (😧) or an issue wit
   :: Example, architecture is 64-bit and OS is Windows
   node msi win32 x64
   ```
-6. You shold see a folder `msi`. Inside that folder, there's `Federal Space.msi`. That's the generated installer. Proceed to [Download, install and play](#download-install-and-play).
+6. You shold see a folder `msi`. Inside that folder, there's `Federal Space.msi`. That's the generated installer. Proceed to Step 3 in [Download, install and play](#download-install-and-play).

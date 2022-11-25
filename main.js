@@ -140,10 +140,14 @@ var GUI = {
 		shortcut: {key: "p"}
 	},
 	"change-world": {
+		open(elm) {
+			elm.querySelector("#change-world-number").value = worldNow;
+		},
 		shortcut: {key: "w"}
 	}
 };
 onload = () => {
+	window.tl = new THREE.TextureLoader;
 	window.music = new Audio("music.mp3");
 	function playMusic() {
 		music.play();
@@ -153,7 +157,11 @@ onload = () => {
 		removeEventListener("click", playMusic);
 	}
 	addEventListener("click", playMusic);
-	window.gameSettings = JSON.parse(localStorage.getItem("game-settings")) ?? {volume: 75, highRenderQuality: false};
+	window.gameSettings = JSON.parse(localStorage.getItem("game-settings")) ?? {
+		volume: 75,
+		highRenderQuality: true,
+		renderPlanetTags: false
+	};
 	music.volume = gameSettings.volume / 100;
 	window.closeButton = document.createElement("div");
 	closeButton.classList.add("gui-window-close-btn");
@@ -168,9 +176,12 @@ onload = () => {
 	});
 	window.renderGame = 0;
 	window.worldNow = 0;
-	window.zoom = 40;
+	window.zoom = 25;
 	window.renderer = new THREE.WebGLRenderer;
-	renderer.domElement.onwheel = event => zoom *= (event.wheelDelta < 0) ? 1.1 : (1 / 1.1);
+	renderer.domElement.onwheel = event => {
+		zoom *= (event.wheelDelta < 0) ? 1.1 : (1 / 1.1);
+		zoom = Math.min(Math.max(zoom, 1), 25);
+	};
 	renderer.setSize(innerWidth, innerHeight);
 	window.scene = new THREE.Scene;
 	window.camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight);
@@ -184,11 +195,23 @@ onload = () => {
 	window.data = JSON.parse(localStorage.getItem("game-data"));
 	window.colonizingRocket = new THREE.Group;
 	colonizingRocket.add(new THREE.Mesh(
-		new THREE.CapsuleGeometry(0.2, 0.2),
+		new THREE.CylinderGeometry(0.35, 0.35, 2, 24, 1),
 		new THREE.MeshPhongMaterial({color: 0xdddddd})
 	));
+	colonizingRocket.children.at(-1).rotation.x = Math.toRadians(90);
 	colonizingRocket.add(new THREE.PointLight(0xe38c2d, 0.75));
-	colonizingRocket.children.at(-1).position.y = -0.5;
+	colonizingRocket.children.at(-1).rotation.x = Math.toRadians(90);
+	colonizingRocket.children.at(-1).position.z = -1.5;
+	colonizingRocket.add(new THREE.Mesh(
+		new THREE.ConeGeometry(0.5, 0.75, 24, 1),
+		new THREE.MeshPhongMaterial({color: 0xdd1212})
+	));
+	colonizingRocket.children.at(-1).rotation.x = Math.toRadians(90);
+	colonizingRocket.children.at(-1).position.z = 1.5;
+	colonizingRocket.scale.set(.4, .4, .4);
+	window.stars = [];
+	window.planetRenders = [];
+	window.generatedFederationPlanetTags = {};
 	loadGame();
 	function frame() {
 		if (renderGame >= 0) {
@@ -206,18 +229,19 @@ onload = () => {
 			camera.updateProjectionMatrix();
 			if (data.colonizingRocket) {
 				document.getElementById("cancel-rocket-btn").classList.remove("gui-hidden");
-				if (data.colonizingRocket.world == worldNow)
-					scene.add(colonizingRocket);
-				else
-					scene.remove(colonizingRocket);
 				var targetPlanet = data.colonizingRocket.targetPlanet.split(":");
-				colonizingRocket.lookAt(
-					data.worlds[targetPlanet[0]][targetPlanet[1]].x,
-					0,
-					data.worlds[targetPlanet[0]][targetPlanet[1]].z
-				);
-				colonizingRocket.rotation.x = Math.toRadians(90);
-				colonizingRocket.position.set(data.colonizingRocket.x, 0, data.colonizingRocket.z);
+				if (data.colonizingRocket.world == worldNow) {
+					scene.add(colonizingRocket);
+					colonizingRocket.lookAt(
+						data.worlds[targetPlanet[0]][targetPlanet[1]].x,
+						0,
+						data.worlds[targetPlanet[0]][targetPlanet[1]].z
+					);
+					colonizingRocket.position.set(data.colonizingRocket.x, 0, data.colonizingRocket.z);
+				}
+				else {
+					scene.remove(colonizingRocket);
+				}
 				var calculatedValue = Math.atan(
 					(data.colonizingRocket.x - data.worlds[targetPlanet[0]][targetPlanet[1]].x)
 					/
@@ -230,7 +254,7 @@ onload = () => {
 					data.worlds[targetPlanet[0]][targetPlanet[1]].z,
 					data.colonizingRocket.x,
 					data.colonizingRocket.z
-				) < 0.1) {
+				) < data.worlds[targetPlanet[0]][targetPlanet[1]].size) {
 					delete data.colonizingRocket;
 					colonizePlanetFinish(targetPlanet.join(":"));
 					scene.remove(colonizingRocket);
@@ -239,6 +263,18 @@ onload = () => {
 			}
 			else {
 				document.getElementById("cancel-rocket-btn").classList.add("gui-hidden");
+			}
+			// Moving stars
+			if (gameSettings.highRenderQuality) {
+				for (var star of stars) {
+					star.position.x += generateRandomNumber(5, 12) / 2500 * Math.abs(star.position.y);
+					if (star.position.x > 150) {
+						star.position.x -= 300;
+					}
+					if (star.position.x < -150) {
+						star.position.x += 300;
+					}
+				}
 			}
 		}
 		else {
@@ -284,6 +320,9 @@ onload = () => {
 				camera.userData.z += Math.cos(camera.userData.rotationX + Math.PI / 2) * (x - event.clientX) / 60 * zoom;
 				x = event.clientX;
 				y = event.clientY;
+				// Constraints
+				camera.userData.x = Math.min(Math.max(camera.userData.x, -100), 100);
+				camera.userData.z = Math.min(Math.max(camera.userData.z, -100), 100);
 			}
 			onmouseup = () => {
 				onmousemove = null;
@@ -339,13 +378,20 @@ onload = () => {
 				if (data.alienCooldown < 0
 				&& ![null, "You"].includes(data.worlds[i][j].ownedBy) && !generateRandomNumber(0, 449)) {
 					data.alienCooldown = 250;
-					var planet = data.worlds.random().random();
-					if (planet.ownedBy == data.worlds[i][j].ownedBy)
+					var path = [generateRandomNumber(0, 49), generateRandomNumber(0, 49)];
+					var planet = data.worlds[path[0]][path[1]];
+					if (planet.ownedBy == data.worlds[i][j].ownedBy) {
 						continue;
+					}
 					planet.ownedBy = data.worlds[i][j].ownedBy;
 					planet.strength = generateRandomNumber(1000, 1000000);
 					saveGame();
-					openGUI("alert", `${planet.ownedBy} has taken over ${planet.name}!`);
+					if (worldNow == path[0]) {
+						openGUI("alert", `${planet.ownedBy} has taken over ${planet.name} in your world!`);
+						if (gameSettings.renderPlanetTags) {
+							planetRenders[path[1]].children[1].material = federationPlanetTag(planet.ownedBy, data.federations[planet.ownedBy].color);
+						}
+					}
 				}
 			}
 		}
@@ -370,7 +416,12 @@ onload = () => {
 				if (GUI[i].shortcut.alt != undefined && GUI[i].shortcut.alt != event.altKey) {
 					continue;
 				}
-				openGUI(i);
+				if (GUI[i]?.opened) {
+					closeGUI(i);
+				}
+				else {
+					openGUI(i);
+				}
 			}
 		}
 	}
@@ -433,13 +484,39 @@ function loadGame() {
 		loadGame();
 	}
 	else {
+		planetRenders = [];
 		renderGame -= data.worlds[worldNow].length;
 		scene.add(new THREE.Mesh(new THREE.SphereGeometry(5), new THREE.MeshBasicMaterial({color: 0xffff80})));
 		if (gameSettings.highRenderQuality) {
 			scene.add(new THREE.PointLight(0xffff80, 1.5));
+			scene.add(new THREE.AmbientLight(0xffffff, 0.05));
 		}
 		for (var j = 0; j < data.worlds[worldNow].length; j++) {
-			scene.add(generatePlanetMesh(worldNow + ":" + j, () => renderGame++));
+			// Compatibility
+			if (data.worlds[worldNow][j].display.ring == undefined) {
+				data.worlds[worldNow][j].display.ring = !generateRandomNumber(0, 5);
+			}
+			planetRenders.push(generatePlanetRender(worldNow + ":" + j, () => renderGame++));
+			scene.add(planetRenders.at(-1));
+		}
+	}
+	// Decoration
+	if (gameSettings.highRenderQuality) {
+		stars = [];
+		for (var i = 0; i < 1000; i++) {
+			var star = new THREE.Mesh(
+				new THREE.SphereGeometry(generateRandomNumber(100, 500) / 5000),
+				new THREE.MeshBasicMaterial({color: `rgb(
+					${generateRandomNumber(175, 255)}, 
+					${generateRandomNumber(175, 255)}, 255)`})
+			);
+			star.position.set(
+				generateRandomNumber(-150, 150),
+				generateRandomNumber(-50, 50),
+				generateRandomNumber(-150, 150)
+			);
+			scene.add(star);
+			stars.push(star);
 		}
 	}
 }
@@ -470,7 +547,8 @@ function generatePlanet(x = generateRandomNumber(-100, 100), z = generateRandomN
 				r: generateRandomNumber(0, 255),
 				g: generateRandomNumber(0, 255),
 				b: generateRandomNumber(0, 255)
-			}
+			},
+			ring: !generateRandomNumber(0, 5)
 		},
 		size: generateRandomNumber(25, 150) / 100,
 		gem: {
@@ -493,7 +571,8 @@ function generatePlanet(x = generateRandomNumber(-100, 100), z = generateRandomN
 		hasGemProduction: false
 	};
 }
-function generatePlanetMesh(planet, onDoneCallback = new Function) {
+function generatePlanetRender(planet, onDoneCallback = new Function) {
+	var r = new THREE.Group;
 	var path = planet.split(":");
 	planet = data.worlds[path[0]][path[1]];
 	var mesh = new THREE.Mesh(new THREE.SphereGeometry(planet.size),
@@ -511,15 +590,61 @@ function generatePlanetMesh(planet, onDoneCallback = new Function) {
 		ctx.fillRect(0, 0, 1024, 512);
 		ctx.globalAlpha = 0.5;
 		ctx.drawImage(image, 0, 0);
-		mesh.material.map = new THREE.TextureLoader().load(canvas.toDataURL());
+		mesh.material.map = tl.load(canvas.toDataURL());
 		onDoneCallback();
 	}
 	image.src = `images/planets/${planet.display.texture}.png`;
-	mesh.position.set(planet.x, 0, planet.z);
 	mesh.rotation.x = planet.display.rotation;
 	mesh.name = "Planet";
 	mesh.userData.planet = path.join(":");
-	return mesh;
+	r.add(mesh);
+	if (gameSettings.renderPlanetTags) {
+		r.add(new THREE.Sprite(new THREE.SpriteMaterial({
+			map: federationPlanetTag(planet.ownedBy, data.federations[planet.ownedBy].color)
+		})));
+		r.children.at(-1).position.set(0, planet.size + 2, 0);
+		r.children.at(-1).scale.set(4, 4, 4);
+	}
+	if (planet.display.ring) {
+		r.add(new THREE.Mesh(
+			new THREE.TorusGeometry(planet.size + 0.5, 0.15, 32, 32),
+			gameSettings.highRenderQuality ?
+			new THREE.MeshPhongMaterial({color: 0x808080}) :
+			new THREE.MeshBasicMaterial({color: 0x808080})
+		));
+		r.children.at(-1).rotation.x = planet.display.rotation;
+	}
+	r.position.set(planet.x, 0, planet.z);
+	return r;
+}
+function federationPlanetTag(name, color, size = 256) {
+	if (generatedFederationPlanetTags[name]) {
+		return generatedFederationPlanetTags[name];
+	}
+	var canvas = document.createElement("canvas");
+	canvas.width = canvas.height = size;
+	if (!name) {
+		var texture = tl.load(canvas.toDataURL());
+		generatedFederationPlanetTags[name] = texture;
+		return texture;
+	}
+	var ctx = canvas.getContext("2d");
+	ctx.fillStyle = (typeof color == "string") ? color : ("#" + color.toString(16));
+	ctx.lineWidth = 1;
+	ctx.beginPath();
+	ctx.moveTo(size / 5, size / 2);
+	ctx.lineTo(size * 0.8, size / 2);
+	ctx.lineTo(size / 2, size * 0.8);
+	ctx.lineTo(size / 5, size / 2);
+	ctx.closePath();
+	ctx.fill();
+	ctx.font = size / 4 + "px font";
+	ctx.textAlign = "center";
+	ctx.textBaseline = "middle";
+	ctx.fillText(name, size / 2, size / 4, size);
+	var texture = tl.load(canvas.toDataURL());
+	generatedFederationPlanetTags[name] = texture;
+	return texture;
 }
 function gotoPlanet(id) {
 	camera.userData.x = data.worlds[worldNow][id].x;
@@ -558,12 +683,20 @@ function generatePlanetGemImage(gem) {
 }
 function openGUI(name, ...data) {
 	document.querySelector(`[gui-name="${name}"]`).classList.add("gui-opened");
+	if (!GUI[name]) {
+		GUI[name] = {};
+	}
+	GUI[name].opened = true;
 	document.body.appendChild(document.querySelector(`[gui-name="${name}"]`));
-	return ((GUI[name] || {}).open || new Function)(document.querySelector(`[gui-name="${name}"]`), ...data);
+	return (GUI[name].open || new Function)(document.querySelector(`[gui-name="${name}"]`), ...data);
 }
 function closeGUI(name, ...data) {
+	if (!GUI[name]) {
+		GUI[name] = {};
+	}
+	GUI[name].opened = false;
 	document.querySelector(`[gui-name="${name}"]`).classList.remove("gui-opened");
-	return ((GUI[name] || {}).close || new Function)(document.querySelector(`[gui-name="${name}"]`), ...data);
+	return (GUI[name].close || new Function)(document.querySelector(`[gui-name="${name}"]`), ...data);
 }
 function sellBackpack() {
 	for (var gem of Object.keys(data.backpack.items)) {
@@ -607,6 +740,9 @@ function colonizePlanetFinish(path) {
 		data.worlds[path[0]][path[1]].intelligentLife = false;
 		data.worlds[path[0]][path[1]].ownedBy = "You";
 		openGUI("alert", `You've successfully colonized the planet ${data.worlds[path[0]][path[1]].name}. It is now yours.`);
+		if (worldNow == path[0] && gameSettings.renderPlanetTags) {
+			planetRenders[path[1]].children[1].material = federationPlanetTag("You", data.federations["You"].color);
+		}
 	}
 	else {
 		openGUI("alert", `Cannot colonize planet because you need $${
@@ -650,6 +786,9 @@ function declareWar(path) {
 		delete planet.strength;
 		openGUI("alert", `You've successfully colonized ${planet.name} and taken it from the ${planet.ownedBy}.`);
 		planet.ownedBy = "You";
+		if (worldNow == path[0] && gameSettings.renderPlanetTags) {
+			planetRenders[path[1]].children[1].material = federationPlanetTag("You", data.federations["You"].color);
+		}
 	}
 	else {
 		planet.strength -= data.balance;
@@ -665,4 +804,9 @@ function cancelColonizingRocket() {
 		scene.remove(colonizingRocket);
 		saveGame();
 	});
+}
+function toggleRenderingPlanetTags() {
+	gameSettings.renderPlanetTags = !gameSettings.renderPlanetTags;
+	saveGameSettings();
+	loadGame();
 }

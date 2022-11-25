@@ -1,6 +1,6 @@
 {
   "name": "Federal Space",
-  "version": "2022.11.22",
+  "version": "2022.11.25",
   "description": "Take over space!",
   "main": "app.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "node"
   ],
   "author": "EntityPlantt & FilipK",
-  "devDependencies": {
+  "dependencies": {
     "electron": "^18.1.0",
     "electron-packager": "^15.5.1",
     "electron-wix-msi": "^4.0.0"

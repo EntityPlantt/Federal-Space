@@ -24,13 +24,14 @@
 	<div class="gui" gui-name="change-world" gui-title="Change world">
 		Change world to:
 		<br>
-		<input type="number" min="0" value="0" onkeypress="if (['Enter', '\n'].includes(event.key)) {changeWorldTo(parseInt(this.value)); closeGUI('change-world')}">
+		<input id="change-world-number" type="number" min="0" value="0" onkeypress="if (['Enter', '\n'].includes(event.key)) {changeWorldTo(parseInt(this.value)); closeGUI('change-world')}">
 	</div>
 	<div class="gui gui-button gui-independent gui-left gui-bottom" onclick="openGUI('options')"><img src="images/gui/options.png" width="32"></div>
 	<div class="gui" gui-name="options" gui-title="Options">
 		<div class="gui">Volume: <input type="number" min="0" max="100" class="volume-setting" onchange="GUI['options'].changeVolume(parseInt(this.value))"></div>
 		<div class="gui gui-button" onclick="removeGameData()">Reset all game data</div>
-		<div class="gui gui-button" onclick="toggleHighRenderQuality()">Toggle high render quality</div>
+		<div class="gui gui-button" onclick="toggleHighRenderQuality(); closeGUI('options')">High render quality</div>
+		<div class="gui gui-button" onclick="toggleRenderingPlanetTags(); closeGUI('options')">Render planet tags (Beta)</div>
 		<div class="gui gui-button" onclick="window.close()">Exit</div>
 	</div>
 	<div class="gui" gui-name="backpack" gui-title="Backpack">
@@ -51,8 +52,8 @@
 		<div class="message"></div>
 		<div class="gui gui-button confirm">OK</div>
 	</div>
-	<div class="gui gui-independent gui-button gui-top gui-left" style="margin-top: 50px;" id="cancel-rocket-btn" onclick="cancelColonizingRocket()">Cancel rocket</div>
-	<div class="gui gui-button gui-independent gui-right gui-top" style="margin-top: 50px;" onclick="openGUI('planet-list')">Planet list</div>
+	<div class="gui gui-independent gui-button gui-top gui-left" style="margin-top: 57.5px;" id="cancel-rocket-btn" onclick="cancelColonizingRocket()">Cancel rocket</div>
+	<div class="gui gui-button gui-independent gui-right gui-top" style="margin-top: 57.5px;" onclick="openGUI('planet-list')">Planet list</div>
 	<div class="gui" gui-name="planet-list" gui-title="Planet list">
 		<ul class="planet-list"></ul>
 	</div>
