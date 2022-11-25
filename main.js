@@ -176,9 +176,12 @@ onload = () => {
 	});
 	window.renderGame = 0;
 	window.worldNow = 0;
-	window.zoom = 40;
+	window.zoom = 25;
 	window.renderer = new THREE.WebGLRenderer;
-	renderer.domElement.onwheel = event => zoom *= (event.wheelDelta < 0) ? 1.1 : (1 / 1.1);
+	renderer.domElement.onwheel = event => {
+		zoom *= (event.wheelDelta < 0) ? 1.1 : (1 / 1.1);
+		zoom = Math.min(Math.max(zoom, 1), 25);
+	};
 	renderer.setSize(innerWidth, innerHeight);
 	window.scene = new THREE.Scene;
 	window.camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight);
@@ -265,11 +268,11 @@ onload = () => {
 			if (gameSettings.highRenderQuality) {
 				for (var star of stars) {
 					star.position.x += generateRandomNumber(5, 12) / 2500 * Math.abs(star.position.y);
-					if (star.position.x > 120) {
-						star.position.x -= 240;
+					if (star.position.x > 150) {
+						star.position.x -= 300;
 					}
-					if (star.position.x < -120) {
-						star.position.x += 240;
+					if (star.position.x < -150) {
+						star.position.x += 300;
 					}
 				}
 			}
@@ -317,6 +320,9 @@ onload = () => {
 				camera.userData.z += Math.cos(camera.userData.rotationX + Math.PI / 2) * (x - event.clientX) / 60 * zoom;
 				x = event.clientX;
 				y = event.clientY;
+				// Constraints
+				camera.userData.x = Math.min(Math.max(camera.userData.x, -100), 100);
+				camera.userData.z = Math.min(Math.max(camera.userData.z, -100), 100);
 			}
 			onmouseup = () => {
 				onmousemove = null;
@@ -493,7 +499,7 @@ function loadGame() {
 	// Decoration
 	if (gameSettings.highRenderQuality) {
 		stars = [];
-		for (var i = 0; i < 750; i++) {
+		for (var i = 0; i < 1000; i++) {
 			var star = new THREE.Mesh(
 				new THREE.SphereGeometry(generateRandomNumber(100, 500) / 5000),
 				new THREE.MeshBasicMaterial({color: `rgb(
@@ -501,9 +507,9 @@ function loadGame() {
 					${generateRandomNumber(175, 255)}, 255)`})
 			);
 			star.position.set(
-				generateRandomNumber(-120, 120),
+				generateRandomNumber(-150, 150),
 				generateRandomNumber(-50, 50),
-				generateRandomNumber(-120, 120)
+				generateRandomNumber(-150, 150)
 			);
 			scene.add(star);
 			stars.push(star);
