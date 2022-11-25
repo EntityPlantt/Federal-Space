@@ -492,6 +492,10 @@ function loadGame() {
 			scene.add(new THREE.AmbientLight(0xffffff, 0.05));
 		}
 		for (var j = 0; j < data.worlds[worldNow].length; j++) {
+			// Compatibility
+			if (data.worlds[worldNow][j].display.ring == undefined) {
+				data.worlds[worldNow][j].display.ring = !generateRandomNumber(0, 5);
+			}
 			planetRenders.push(generatePlanetRender(worldNow + ":" + j, () => renderGame++));
 			scene.add(planetRenders.at(-1));
 		}
@@ -543,7 +547,8 @@ function generatePlanet(x = generateRandomNumber(-100, 100), z = generateRandomN
 				r: generateRandomNumber(0, 255),
 				g: generateRandomNumber(0, 255),
 				b: generateRandomNumber(0, 255)
-			}
+			},
+			ring: !generateRandomNumber(0, 5)
 		},
 		size: generateRandomNumber(25, 150) / 100,
 		gem: {
@@ -589,7 +594,6 @@ function generatePlanetRender(planet, onDoneCallback = new Function) {
 		onDoneCallback();
 	}
 	image.src = `images/planets/${planet.display.texture}.png`;
-	mesh.position.set(planet.x, 0, planet.z);
 	mesh.rotation.x = planet.display.rotation;
 	mesh.name = "Planet";
 	mesh.userData.planet = path.join(":");
@@ -598,9 +602,19 @@ function generatePlanetRender(planet, onDoneCallback = new Function) {
 		r.add(new THREE.Sprite(new THREE.SpriteMaterial({
 			map: federationPlanetTag(planet.ownedBy, data.federations[planet.ownedBy].color)
 		})));
-		r.children.at(-1).position.set(planet.x, planet.size + 2, planet.z);
+		r.children.at(-1).position.set(0, planet.size + 2, 0);
 		r.children.at(-1).scale.set(4, 4, 4);
 	}
+	if (planet.display.ring) {
+		r.add(new THREE.Mesh(
+			new THREE.TorusGeometry(planet.size + 0.5, 0.15, 32, 32),
+			gameSettings.highRenderQuality ?
+			new THREE.MeshPhongMaterial({color: 0x808080}) :
+			new THREE.MeshBasicMaterial({color: 0x808080})
+		));
+		r.children.at(-1).rotation.x = planet.display.rotation;
+	}
+	r.position.set(planet.x, 0, planet.z);
 	return r;
 }
 function federationPlanetTag(name, color, size = 256) {
