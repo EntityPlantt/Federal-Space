@@ -38,7 +38,12 @@ Want to build it on your own, *because you don't trust me (😧) or an issue wit
   ```bat
   npm install
   ```
-4. Go inside `batches` and run `build.bat` in Command Prompt. You should now have a directory that's something like `Federal Space-win32-x64`. The name depends of your computer's operational system.
+4. Run the `build` command of the package.
+  ```bat
+  npm run build
+  ```
+  You should now have a directory that's something like `Federal Space-win32-x64`. The name depends of your computer's operational system.
+
 5. Go back and run the file `msi.js` with arguments of your OS and architecture.
   ```bat
   cd ..
