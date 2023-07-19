@@ -175,15 +175,20 @@ body {
 }
 [gui-name].gui-opened {
 	display: unset;
-	animation: openGUI 1s 1 cubic-bezier(0.22, 1, 0.36, 1);
+	animation: openGUI .5s 1 ease-out;
 }
 @keyframes openGUI {
 	from {
-		top: 100vh;
 		opacity: 0;
+		transform: translateX(-50%) translateY(-50%) scaleX(1) scaleY(0);
+	}
+	50% {
+		opacity: 0.5;
+		transform: translateX(-50%) translateY(-50%) scaleX(.25) scaleY(1.5);
 	}
 	to {
 		opacity: 1;
+		transform: translateX(-50%) translateY(-50%) scaleX(1) scaleY(1);
 	}
 }
 input, select {

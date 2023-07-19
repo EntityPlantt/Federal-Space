@@ -1,5 +1,5 @@
 const generateRandomNumber = (from, to) => from + Math.floor(Math.random() * (to - from + 1)),
-distance = (x1, y1, x2, y2) => Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+distance = (x1, y1, x2, y2) => Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 Array.prototype.random = function() {
 	return this[generateRandomNumber(0, this.length - 1)];
 };
@@ -253,8 +253,8 @@ onload = () => {
 					/
 					(data.colonizingRocket.z - data.worlds[targetPlanet[0]][targetPlanet[1]].z)
 				);
-				data.colonizingRocket.x -= Math.cos(Math.toDegrees(-calculatedValue) + 90) * 0.05;
-				data.colonizingRocket.z -= Math.sin(Math.toDegrees(-calculatedValue) + 90) * 0.05;
+				data.colonizingRocket.x -= Math.cos(90 - Math.toDegrees(calculatedValue)) * 0.05;
+				data.colonizingRocket.z -= Math.sin(90 - Math.toDegrees(calculatedValue)) * 0.05;
 				if (distance(
 					data.worlds[targetPlanet[0]][targetPlanet[1]].x,
 					data.worlds[targetPlanet[0]][targetPlanet[1]].z,
@@ -376,7 +376,7 @@ onload = () => {
 						${generateRandomNumber(0, 255)}
 					)`};
 					saveGame();
-					planet.strength = generateRandomNumber(5000, 5000000);
+					data.worlds[i][j].strength = generateRandomNumber(5000, 5000000);
 					openGUI("alert",
 					`The life on the planet ${data.worlds[i][j].name} has evolved to ${data.worlds[i][j].ownedBy}!`);
 				}
@@ -808,7 +808,7 @@ But, you lowered their planet budget to $${planet.strength.toLocaleString("en-US
 }
 function cancelColonizingRocket() {
 	openGUI("confirm", "You are going to cancel the colonizing rocket.", () => {
-		data.colonizingRocket = null;
+		delete data.colonizingRocket;
 		scene.remove(colonizingRocket);
 		saveGame();
 	});
