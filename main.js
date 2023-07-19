@@ -1,7 +1,7 @@
-const generateRandomNumber = (from, to) => from + Math.floor(Math.random() * (to - from + 1)),
+const gnrand = (from, to) => from + Math.floor(Math.random() * (to - from + 1)),
 distance = (x1, y1, x2, y2) => Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-Array.prototype.random = function() {return this[generateRandomNumber(0, this.length - 1)]};
-Array.prototype.toInt = function() {return this.map(x => x.parseInt(x))};
+Array.prototype.random = function() {return this[gnrand(0, this.length - 1)]};
+Array.prototype.toInt = function() {return this.map(x => parseInt(x))};
 Math.toDegrees = rad => rad * 180 / Math.PI;
 Math.toRadians = deg => deg / 180 * Math.PI;
 var GUI = {
@@ -273,7 +273,7 @@ onload = () => {
 			// Moving stars
 			if (gameSettings.highRenderQuality) {
 				for (var star of stars) {
-					star.position.x += generateRandomNumber(5, 12) / 2500 * Math.abs(star.position.y);
+					star.position.x += gnrand(5, 12) / 2500 * Math.abs(star.position.y);
 					if (star.position.x > 150) {
 						star.position.x -= 300;
 					}
@@ -361,7 +361,7 @@ onload = () => {
 						saveGame();
 					}
 				}
-				if (data.worlds[i][j].ownedBy == null && data.worlds[i][j].intelligentLife && !generateRandomNumber(0, 899 / 1.1 ** i)) {
+				if (data.worlds[i][j].ownedBy == null && data.worlds[i][j].intelligentLife && !gnrand(0, 899 / 1.1 ** i)) {
 					data.worlds[i][j].intelligentLife = false;
 					data.worlds[i][j].ownedBy
 					= "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").random()
@@ -370,28 +370,28 @@ onload = () => {
 					+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").random()
 					+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").random();
 					data.federations[data.worlds[i][j].ownedBy] = {color: `rgb(
-						${generateRandomNumber(0, 255)},
-						${generateRandomNumber(0, 255)},
-						${generateRandomNumber(0, 255)}
+						${gnrand(0, 255)},
+						${gnrand(0, 255)},
+						${gnrand(0, 255)}
 					)`};
 					saveGame();
-					data.worlds[i][j].strength = generateRandomNumber(5e3 * 1.5 ** i, 5e6 * 1.5 ** i);
+					data.worlds[i][j].strength = gnrand(5e3 * 1.5 ** i, 5e6 * 1.5 ** i);
 					openGUI("alert",
 					`The life on the planet ${data.worlds[i][j].name} has evolved to ${data.worlds[i][j].ownedBy}!`);
 				}
 				if (![null, "You"].includes(data.worlds[i][j].ownedBy)) {
-					data.worlds[i][j].strength += generateRandomNumber(10 * 1.2 ** i, 100 * 1.2 ** i);
+					data.worlds[i][j].strength += gnrand(10 * 1.2 ** i, 100 * 1.2 ** i);
 				}
 				if (data.alienCooldown < 0
-				&& ![null, "You"].includes(data.worlds[i][j].ownedBy) && !generateRandomNumber(0, 449 / 1.1 ** i)) {
+				&& ![null, "You"].includes(data.worlds[i][j].ownedBy) && !gnrand(0, 449 / 1.1 ** i)) {
 					data.alienCooldown = 250 / 1.1 ** i;
-					var path = [generateRandomNumber(0, data.worlds.length), generateRandomNumber(0, 49)];
+					var path = [gnrand(0, data.worlds.length), gnrand(0, 49)];
 					var planet = data.worlds[path[0]][path[1]];
 					if (planet.ownedBy == data.worlds[i][j].ownedBy) {
 						continue;
 					}
 					planet.ownedBy = data.worlds[i][j].ownedBy;
-					planet.strength = generateRandomNumber(1e3 * 1.5 ** path[0], 1e6 * 1.5 ** path[0]);
+					planet.strength = gnrand(1e3 * 1.5 ** path[0], 1e6 * 1.5 ** path[0]);
 					saveGame();
 					if (worldNow == path[0]) {
 						openGUI("alert", `${planet.ownedBy} has taken over ${planet.name} in your world!`);
@@ -501,7 +501,7 @@ function loadGame() {
 		for (var j = 0; j < data.worlds[worldNow].length; j++) {
 			// Compatibility
 			if (data.worlds[worldNow][j].display.ring == undefined) {
-				data.worlds[worldNow][j].display.ring = !generateRandomNumber(0, 5);
+				data.worlds[worldNow][j].display.ring = !gnrand(0, 5);
 			}
 			planetRenders.push(generatePlanetRender(worldNow + ":" + j, () => renderGame++));
 			scene.add(planetRenders.at(-1));
@@ -512,15 +512,15 @@ function loadGame() {
 		stars = [];
 		for (var i = 0; i < 1e3; i++) {
 			var star = new THREE.Mesh(
-				new THREE.SphereGeometry(generateRandomNumber(100, 500) / 5e3),
+				new THREE.SphereGeometry(gnrand(100, 500) / 5e3),
 				new THREE.MeshBasicMaterial({color: `rgb(
-					${generateRandomNumber(175, 255)}, 
-					${generateRandomNumber(175, 255)}, 255)`})
+					${gnrand(175, 255)}, 
+					${gnrand(175, 255)}, 255)`})
 			);
 			star.position.set(
-				generateRandomNumber(-150, 150),
-				generateRandomNumber(-50, 50),
-				generateRandomNumber(-150, 150)
+				gnrand(-150, 150),
+				gnrand(-50, 50),
+				gnrand(-150, 150)
 			);
 			scene.add(star);
 			stars.push(star);
@@ -538,42 +538,42 @@ function generatePlanetGemName() {
 		"chl", "tr", "kn", "cn", "ph"
 	], vowels = "aeiouy".split("");
 	var str = consonants.random() + ["ium", "um", "en", vowels.random() + "te", "ond"].random();
-	for (var syllables = generateRandomNumber(0, 3); syllables > 0; syllables--) {
+	for (var syllables = gnrand(0, 3); syllables > 0; syllables--) {
 		str = consonants.random() + vowels.random() + str;
 	}
-	str = ((generateRandomNumber(0, 1) == 1) ? consonants.random() : "") + vowels.random() + str;
+	str = ((gnrand(0, 1) == 1) ? consonants.random() : "") + vowels.random() + str;
 	str = str[0].toUpperCase() + str.substr(1);
 	return str;
 }
-function generatePlanet(x = generateRandomNumber(-100, 100), z = generateRandomNumber(-100, 100)) {
+function generatePlanet(x = gnrand(-100, 100), z = gnrand(-100, 100)) {
 	return {
 		display: {
-			texture: generateRandomNumber(1, 3),
-			rotation: generateRandomNumber(0, 90),
+			texture: gnrand(1, 3),
+			rotation: gnrand(0, 90),
 			color: {
-				r: generateRandomNumber(0, 255),
-				g: generateRandomNumber(0, 255),
-				b: generateRandomNumber(0, 255)
+				r: gnrand(0, 255),
+				g: gnrand(0, 255),
+				b: gnrand(0, 255)
 			},
-			ring: !generateRandomNumber(0, 5)
+			ring: !gnrand(0, 5)
 		},
-		size: generateRandomNumber(25, 150) / 100,
+		size: gnrand(25, 150) / 100,
 		gem: {
 			name: generatePlanetGemName(),
 			display: {
 				color: {
-					r: generateRandomNumber(0, 255),
-					g: generateRandomNumber(0, 255),
-					b: generateRandomNumber(0, 255)
+					r: gnrand(0, 255),
+					g: gnrand(0, 255),
+					b: gnrand(0, 255)
 				},
-				texture: generateRandomNumber(1, 5)
+				texture: gnrand(1, 5)
 			},
-			value: generateRandomNumber(100, 5e3)
+			value: gnrand(100, 5e3)
 		},
-		name: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").random() + generateRandomNumber(10, 99),
+		name: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").random() + gnrand(10, 99),
 		x: x,
 		z: z,
-		intelligentLife: generateRandomNumber(0, 49) == 0,
+		intelligentLife: gnrand(0, 49) == 0,
 		ownedBy: null,
 		hasGemProduction: false
 	};
