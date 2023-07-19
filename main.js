@@ -231,6 +231,11 @@ onload = () => {
 				document.getElementById("cancel-rocket-btn").classList.remove("gui-hidden");
 				var targetPlanet = data.colonizingRocket.targetPlanet.split(":");
 				if (data.colonizingRocket.world == worldNow) {
+					document.getElementById("goto-rocket-btn").classList.remove("gui-hidden");
+					if (camera.userData.rocketlock) {
+						camera.userData.x = data.colonizingRocket.x;
+						camera.userData.z = data.colonizingRocket.z;
+					}
 					scene.add(colonizingRocket);
 					colonizingRocket.lookAt(
 						data.worlds[targetPlanet[0]][targetPlanet[1]].x,
@@ -241,6 +246,7 @@ onload = () => {
 				}
 				else {
 					scene.remove(colonizingRocket);
+					document.getElementById("goto-rocket-btn").classList.add("gui-hidden");
 				}
 				var calculatedValue = Math.atan(
 					(data.colonizingRocket.x - data.worlds[targetPlanet[0]][targetPlanet[1]].x)
@@ -263,6 +269,7 @@ onload = () => {
 			}
 			else {
 				document.getElementById("cancel-rocket-btn").classList.add("gui-hidden");
+				document.getElementById("goto-rocket-btn").classList.add("gui-hidden");
 			}
 			// Moving stars
 			if (gameSettings.highRenderQuality) {
@@ -314,6 +321,7 @@ onload = () => {
 		}
 		function startMove(x, y) {
 			onmousemove = event => {
+				camera.userData.rocketlock = false;
 				camera.userData.x += Math.sin(camera.userData.rotationX) * (y - event.clientY) / 60 * zoom;
 				camera.userData.z += Math.cos(camera.userData.rotationX) * (y - event.clientY) / 60 * zoom;
 				camera.userData.x += Math.sin(camera.userData.rotationX + Math.PI / 2) * (x - event.clientX) / 60 * zoom;
@@ -804,6 +812,12 @@ function cancelColonizingRocket() {
 		scene.remove(colonizingRocket);
 		saveGame();
 	});
+}
+function gotoColonizingRocket() {
+	camera.userData.rocketlock = true;
+	zoom = 10;
+	camera.userData.rotationX = Math.PI + colonizingRocket.rotation.y;
+	camera.userData.rotationY = Math.toRadians(30);
 }
 function toggleRenderingPlanetTags() {
 	gameSettings.renderPlanetTags = !gameSettings.renderPlanetTags;
