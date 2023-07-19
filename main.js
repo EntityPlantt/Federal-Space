@@ -1,8 +1,7 @@
 const generateRandomNumber = (from, to) => from + Math.floor(Math.random() * (to - from + 1)),
 distance = (x1, y1, x2, y2) => Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-Array.prototype.random = function() {
-	return this[generateRandomNumber(0, this.length - 1)];
-};
+Array.prototype.random = function() {return this[generateRandomNumber(0, this.length - 1)]};
+Array.prototype.toInt = function() {return this.map(x => x.parseInt(x))};
 Math.toDegrees = rad => rad * 180 / Math.PI;
 Math.toRadians = deg => deg / 180 * Math.PI;
 var GUI = {
@@ -10,7 +9,7 @@ var GUI = {
 		open(elm) {
 			GUI["backpack"].list = elm.querySelector("#backpack-gem-list");
 			elm.querySelector(".bp-max-size").innerText = data.backpack.maxSize.toLocaleString("en-US");
-			elm.querySelector(".bp-up-cost").innerText = (data.backpack.maxSize * 20000).toLocaleString("en-US");
+			elm.querySelector(".bp-up-cost").innerText = (data.backpack.maxSize * 2e4).toLocaleString("en-US");
 			for (var gem of Object.keys(data.backpack.items)) {
 				var li = document.createElement("li"), path = gem.split(":"), elm;
 				elm = generatePlanetGemImage(data.worlds[path[0]][path[1]].gem);
@@ -40,7 +39,7 @@ var GUI = {
 	},
 	"planet": {
 		open(elm, planet) {
-			var path = planet.split(":");
+			var path = planet.split(":").toInt();
 			planet = data.worlds[path[0]][path[1]];
 			elm.querySelector(".gui-title").innerHTML
 			= elm.querySelector(".gui-title").innerHTML.replace(/^(.*?)</, planet.name + "<");
@@ -52,8 +51,8 @@ var GUI = {
 				}
 				elm.querySelector(".options").innerHTML = `
 					<div class="gui gui-button" onclick='colonizePlanet(${JSON.stringify(path.join(":"))})'>Colonize
-					$${(data.worlds[path[0]][path[1]].size * 1000000
-					+ (data.worlds[path[0]][path[1]].intelligentLife ? 1000000 : 0)).toLocaleString("en-US")}</div>
+					$${(data.worlds[path[0]][path[1]].size * 1e6 * 2 ** path[0] 
+					+ (data.worlds[path[0]][path[1]].intelligentLife ? (1e6 * 3 ** path[0]) : 0)).toLocaleString("en-US")}</div>
 				`;
 				break;
 				case "You":
@@ -61,7 +60,7 @@ var GUI = {
 				if (!planet.hasGemProduction) {
 					elm.querySelector(".options").innerHTML = `
 						<div class="gui gui-button" onclick='setUpGemProduction(${JSON.stringify(path.join(":"))})'>
-						Set up gem production ($${(planet.gem.value * 100).toLocaleString("en-US")})
+						Set up gem production ($${(planet.gem.value * 100 * 2.5 ** path[0]).toLocaleString("en-US")})
 						</div>
 					`;
 				}
@@ -362,7 +361,7 @@ onload = () => {
 						saveGame();
 					}
 				}
-				if (data.worlds[i][j].ownedBy == null && data.worlds[i][j].intelligentLife && !generateRandomNumber(0, 899)) {
+				if (data.worlds[i][j].ownedBy == null && data.worlds[i][j].intelligentLife && !generateRandomNumber(0, 899 / 1.1 ** i)) {
 					data.worlds[i][j].intelligentLife = false;
 					data.worlds[i][j].ownedBy
 					= "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").random()
@@ -376,23 +375,23 @@ onload = () => {
 						${generateRandomNumber(0, 255)}
 					)`};
 					saveGame();
-					data.worlds[i][j].strength = generateRandomNumber(5000, 5000000);
+					data.worlds[i][j].strength = generateRandomNumber(5e3 * 1.5 ** i, 5e6 * 1.5 ** i);
 					openGUI("alert",
 					`The life on the planet ${data.worlds[i][j].name} has evolved to ${data.worlds[i][j].ownedBy}!`);
 				}
 				if (![null, "You"].includes(data.worlds[i][j].ownedBy)) {
-					data.worlds[i][j].strength += generateRandomNumber(10, 100);
+					data.worlds[i][j].strength += generateRandomNumber(10 * 1.2 ** i, 100 * 1.2 ** i);
 				}
 				if (data.alienCooldown < 0
-				&& ![null, "You"].includes(data.worlds[i][j].ownedBy) && !generateRandomNumber(0, 449)) {
-					data.alienCooldown = 250;
-					var path = [generateRandomNumber(0, 49), generateRandomNumber(0, 49)];
+				&& ![null, "You"].includes(data.worlds[i][j].ownedBy) && !generateRandomNumber(0, 449 / 1.1 ** i)) {
+					data.alienCooldown = 250 / 1.1 ** i;
+					var path = [generateRandomNumber(0, data.worlds.length), generateRandomNumber(0, 49)];
 					var planet = data.worlds[path[0]][path[1]];
 					if (planet.ownedBy == data.worlds[i][j].ownedBy) {
 						continue;
 					}
 					planet.ownedBy = data.worlds[i][j].ownedBy;
-					planet.strength = generateRandomNumber(1000, 1000000);
+					planet.strength = generateRandomNumber(1e3 * 1.5 ** path[0], 1e6 * 1.5 ** path[0]);
 					saveGame();
 					if (worldNow == path[0]) {
 						openGUI("alert", `${planet.ownedBy} has taken over ${planet.name} in your world!`);
@@ -435,7 +434,7 @@ onload = () => {
 	}
 }
 function removeGameData() {
-	openGUI("confirm", "All game data will be lost.", () => {
+	openGUI("confirm", "⚠ All game data will be lost.", () => {
 		data = null;
 		saveGame();
 		location.reload(true);
@@ -511,9 +510,9 @@ function loadGame() {
 	// Decoration
 	if (gameSettings.highRenderQuality) {
 		stars = [];
-		for (var i = 0; i < 1000; i++) {
+		for (var i = 0; i < 1e3; i++) {
 			var star = new THREE.Mesh(
-				new THREE.SphereGeometry(generateRandomNumber(100, 500) / 5000),
+				new THREE.SphereGeometry(generateRandomNumber(100, 500) / 5e3),
 				new THREE.MeshBasicMaterial({color: `rgb(
 					${generateRandomNumber(175, 255)}, 
 					${generateRandomNumber(175, 255)}, 255)`})
@@ -569,7 +568,7 @@ function generatePlanet(x = generateRandomNumber(-100, 100), z = generateRandomN
 				},
 				texture: generateRandomNumber(1, 5)
 			},
-			value: generateRandomNumber(100, 5000)
+			value: generateRandomNumber(100, 5e3)
 		},
 		name: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").random() + generateRandomNumber(10, 99),
 		x: x,
@@ -715,8 +714,8 @@ function sellBackpack() {
 	saveGame();
 }
 function setUpGemProduction(gem) {
-	gem = gem.split(":");
-	if (payMoney(data.worlds[gem[0]][gem[1]].gem.value * 100)) {
+	gem = gem.split(":").toInt();
+	if (payMoney(data.worlds[gem[0]][gem[1]].gem.value * 100 * 2.5 ** gem[0])) {
 		data.worlds[gem[0]][gem[1]].hasGemProduction = true;
 		closeGUI("planet");
 	}
@@ -743,8 +742,9 @@ function colonizePlanet(path) {
 	closeGUI("planet");
 }
 function colonizePlanetFinish(path) {
-	path = path.split(":");
-	if (payMoney(data.worlds[path[0]][path[1]].size * 1000000 + data.worlds[path[0]][path[1]].intelligentLife ? 1000000 : 0)) {
+	path = path.split(":").toInt();
+	if (payMoney(data.worlds[path[0]][path[1]].size * 1e6 * 2 ** worldNow 
+			+ (data.worlds[path[0]][path[1]].intelligentLife ? (1e6 * 3 ** worldNow) : 0))) {
 		data.worlds[path[0]][path[1]].intelligentLife = false;
 		data.worlds[path[0]][path[1]].ownedBy = "You";
 		openGUI("alert", `You've successfully colonized the planet ${data.worlds[path[0]][path[1]].name}. It is now yours.`);
@@ -754,8 +754,8 @@ function colonizePlanetFinish(path) {
 	}
 	else {
 		openGUI("alert", `Cannot colonize planet because you need $${
-			(data.worlds[path[0]][path[1]].size * 1000000
-			+ data.worlds[path[0]][path[1]].intelligentLife ? 1000000 : 0).toLocaleString("en-US")
+			(data.worlds[path[0]][path[1]].size * 1e6 * 2 ** worldNow 
+			+ (data.worlds[path[0]][path[1]].intelligentLife ? (1e6 * 3 ** worldNow) : 0)).toLocaleString("en-US")
 		} to colonize the entire planet.`);
 	}
 }
@@ -764,7 +764,7 @@ function reopenGUI(name) {
 	openGUI(name);
 }
 function upgradeBackpack() {
-	if (payMoney(data.backpack.maxSize * 20000)) {
+	if (payMoney(data.backpack.maxSize * 2e4)) {
 		data.backpack.maxSize += 50;
 		reopenGUI("backpack");
 	}
@@ -817,7 +817,7 @@ function gotoColonizingRocket() {
 	camera.userData.rocketlock = true;
 	zoom = 10;
 	camera.userData.rotationX = Math.PI + colonizingRocket.rotation.y;
-	camera.userData.rotationY = Math.toRadians(30);
+	camera.userData.rotationY = Math.toRadians(60);
 }
 function toggleRenderingPlanetTags() {
 	gameSettings.renderPlanetTags = !gameSettings.renderPlanetTags;
